@@ -1,0 +1,18 @@
+version: "3"
+services:
+  manager:
+    image: stats-manager
+    container_name: stats-manager
+    build:
+      context: ..
+      dockerfile: Stats.Manager/Dockerfile
+    ports:
+      - "18081:18081"
+    environment:
+      STATS_MANAGER_PORT: 18081
+      STATS_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      
+networks:
+  default:
+    external:
+      name: shared-network   
