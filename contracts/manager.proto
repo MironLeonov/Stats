@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package stats.sequence;
+
+option csharp_namespace = "Stats.Protobuf.Sequence";
+
+import "sequence.proto";
+
+service CalculateValuesService {
+  rpc CalculateValues(Sequence) returns (Answer); 
+}
+

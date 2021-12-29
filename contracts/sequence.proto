@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package stats.sequence;
+
+option csharp_namespace = "Stats.Protobuf.Sequence";
+
+message Sequence {
+    repeated double values = 1;
+    int32 cntThreads = 2;
+}
+
+message Answer { 
+    double EV = 1; 
+    double Var = 2;
+    string Time = 3;
+}
+
