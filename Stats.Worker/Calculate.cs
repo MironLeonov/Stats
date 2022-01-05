@@ -1,29 +1,34 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using Stats.Protobuf.Sequence;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Diagnostics.Tracing;
 
 
 namespace Stats.Worker
 {
     public class Calculate
     {
-        public static Answer CalculateValues(Sequence seq)
+        public static Answer CalculateValues(Sequence seq, IMetrics? metricsCalc)
         {
             var result = new Answer
             {
                 EV = 0,
-                Var = 0, 
+                Var = 0,
                 Time = ""
             };
 
             var stopWatch = new Stopwatch();
+            metricsCalc?.Init(); 
             stopWatch.Start();
             
-            var expValue = ExpectedValue(seq);
+            // metricsCalc.GetMetrics();
+            
+            var expValue = ExpectedValue(seq, metricsCalc);
 
             result.EV = expValue;
 
@@ -33,10 +38,10 @@ namespace Stats.Worker
             var ts = stopWatch.Elapsed;
             string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
                 ts.Hours, ts.Minutes, ts.Seconds,
-                ts.Milliseconds / 10);
-            
-            result.Time = elapsedTime; 
-            
+                ts.Milliseconds);
+
+            result.Time = elapsedTime;
+
             return result;
         }
 
@@ -62,8 +67,8 @@ namespace Stats.Worker
                             acc += (seq.Values[j] - ev) * (seq.Values[j] - ev);
                         }
 
-                        acc /= length; 
-                        
+                        acc /= length;
+
                         sums.Add(acc);
                     }
                 )
@@ -77,16 +82,16 @@ namespace Stats.Worker
         }
 
 
-        public static double ExpectedValue(Sequence seq)
+        public static double ExpectedValue(Sequence seq, IMetrics? metricsCalc)
         {
             var length = seq.Values.Count;
 
-            var cntGroups =  seq.CntThreads;
-            
+            var cntGroups = seq.CntThreads;
+
             var wide = length / cntGroups + 1;
-            
+
             var sums = new ConcurrentBag<double>();
-            
+
             Parallel.ForEach(
                 Enumerable.Range(0, cntGroups),
                 i =>
@@ -94,12 +99,21 @@ namespace Stats.Worker
                     var from = i * wide;
                     var to = Math.Min(length, from + wide);
                     var acc = 0.0;
+                    var step = from; 
                     for (var j = from; j < to; j++)
                     {
+                        if (j - step == 100)
+                        {
+                            metricsCalc?.GetMetrics(i, 100);
+                            step = j; 
+                        }
                         acc += seq.Values[j];
                     }
-
-                    acc /= length; 
+                    
+                    var diff = (to - from) % 100;
+                    metricsCalc?.GetMetrics(i, diff);
+                    
+                    acc /= length;
                     sums.Add(acc);
                 }
             );

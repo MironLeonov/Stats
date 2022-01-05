@@ -21,6 +21,7 @@
     <ItemGroup>
         <Protobuf Include="..\contracts\sequence.proto" />
         <Protobuf Include="..\contracts\worker.proto" />
+        <Protobuf Include="..\contracts\metrics.proto" />
     </ItemGroup>
 
     <ItemGroup>

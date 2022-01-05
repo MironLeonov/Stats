@@ -45,7 +45,7 @@ namespace Stats.Manager
                         webBuilder.ConfigureKestrel(
                             options =>
                             {
-                                options.Limits.MaxRequestBodySize = 50000000;
+                                options.Limits.MaxRequestBodySize = 104857600;
                                 options.Limits.MaxRequestBufferSize = 50000000;
                                 options.Limits.MaxResponseBufferSize = null; 
                                 options.ListenAnyIP(

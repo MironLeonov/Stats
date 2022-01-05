@@ -37,6 +37,7 @@ namespace Stats.Manager
                 endpoints =>
                 {
                     endpoints.MapGrpcService<CalculateValuesServiceImpl>();
+                    endpoints.MapGrpcService<GetMetricsImpl>();
                     endpoints.MapGet(
                         "/",
                         async context =>
@@ -53,6 +54,7 @@ namespace Stats.Manager
                 configuration["STATS_KAFKA_BOOTSTRAP_SERVERS"],
                 configuration["STATS_TOPIC_RQ"] ?? "stats.worker.rq",
                 configuration["STATS_TOPIC_RS"] ?? "stats.worker.rs",
+                configuration["STATS_KAFKA_TOPIC_MET"] ?? "stats.worker.met",
                 configuration["STATS_KAFKA_GROUP_ID"] ?? "stats.manager"
             );
         }

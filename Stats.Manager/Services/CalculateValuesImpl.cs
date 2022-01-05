@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Stats.Manager.Kafka;
 using Stats.Protobuf.Sequence;
 using Stats.Protobuf.Worker;
 using Serilog;
+using Stats.Protobuf.Metrics;
 
 namespace Stats.Manager.Services
 {
@@ -12,8 +14,9 @@ namespace Stats.Manager.Services
      {
           public override async Task<Answer> CalculateValues(Sequence request, ServerCallContext context)
           {
-               Log.Information("Handling new request");
-               var correlationId = Guid.NewGuid();
+
+               Log.Information("Handling new request answer");
+               var correlationId =  Guid.Parse(request.CorrelationId);
                Log.Information("Generated corrId: {CorrelationId}", correlationId);
                await KafkaAdapter.ProduceAsync(
                     correlationId,

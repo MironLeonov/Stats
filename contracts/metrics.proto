@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package stats.sequence;
+
+option csharp_namespace = "Stats.Protobuf.Metrics";
+
+message MetricsProgress {
+    repeated double values = 1;
+    string correlation_id = 2;
+}

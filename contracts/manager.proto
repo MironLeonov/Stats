@@ -5,8 +5,13 @@ package stats.sequence;
 option csharp_namespace = "Stats.Protobuf.Sequence";
 
 import "sequence.proto";
+import "metrics.proto";
+import "google/protobuf/empty.proto";
 
 service CalculateValuesService {
-  rpc CalculateValues(Sequence) returns (Answer); 
+  rpc CalculateValues(Sequence) returns (Answer);
 }
 
+service GetMetricsService{
+  rpc GetMetricsStream(GuidForMetrics) returns (stream MetricsProgress);
+}

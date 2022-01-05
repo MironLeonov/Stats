@@ -7,6 +7,7 @@ option csharp_namespace = "Stats.Protobuf.Sequence";
 message Sequence {
     repeated double values = 1;
     int32 cntThreads = 2;
+    string correlation_id = 3;
 }
 
 message Answer { 
@@ -15,3 +16,16 @@ message Answer {
     string Time = 3;
 }
 
+
+message GuidForMetrics{
+    string correlation_id = 1;
+}
+//message Universal{
+//    double first = 1;
+//    double second = 2;
+//    string Time = 3;
+//}
+//
+//message MetricsSignal{
+//    bool stop = 1;
+//}
