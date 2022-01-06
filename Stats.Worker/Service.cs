@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Confluent.Kafka;
 using Stats.Protobuf.Worker;
 using Serilog;
