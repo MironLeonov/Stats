@@ -16,7 +16,7 @@ namespace Stats.Tests
         }
 
         [Test]
-        public void TestBasic()
+        public void TestBasicClientWork()
         {
             
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
@@ -33,7 +33,8 @@ namespace Stats.Tests
                 new Sequence()
                 {
                     Values = {5, 5, 5, 5, 5, 5},
-                    CntThreads = 8
+                    CntThreads = 8,
+                    CorrelationId = "ad593c71-2c99-4f96-b931-fbc424f4bcc4"
                 }
             );
             Assert.AreEqual(5, result.EV); 

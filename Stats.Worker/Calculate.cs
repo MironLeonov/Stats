@@ -26,7 +26,6 @@ namespace Stats.Worker
             metricsCalc?.Init(); 
             stopWatch.Start();
             
-            // metricsCalc.GetMetrics();
             
             var expValue = ExpectedValue(seq, metricsCalc);
 
