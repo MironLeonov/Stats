@@ -1,0 +1,76 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="350"
+        x:Class="Stats.Avalonia.App.MainWindow"
+        Title="Stats.Avalonia.App">
+    <StackPanel Orientation="Vertical">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="5" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <DockPanel Grid.Row="1">
+                <CheckBox DockPanel.Dock="Right" Content="Metrics" IsThreeState="False" IsChecked="{Binding IsChecked}"
+                          ToolTip.Tip="Enable metrics" />
+                <TextBox Margin="5, 0, 5, 0" Watermark="Count Values" AcceptsReturn="False" Text = "{Binding Count}"/>
+                <TextBox Margin="5, 0, 5, 0" Watermark="Count Threads" AcceptsReturn="False" Text = "{Binding CountThreads}"/>
+                <Button DockPanel.Dock="Right" Content="Start" Click="StartClicked"/>
+            </DockPanel>
+            <Grid Grid.Row="3" HorizontalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="0.1*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="0.1*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0"  Text="Expected Value:" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Column="1"  Text="       " HorizontalAlignment="Center"/>
+                <GridSplitter Grid.Column="2" />
+                <TextBlock Grid.Column="3"  Text="       " HorizontalAlignment="Center"/>
+                <Border BorderBrush="Gray" BorderThickness="1" Grid.Column="2">
+                    <TextBlock  ScrollViewer.VerticalScrollBarVisibility="Auto" Text="{Binding ExpValue}" HorizontalAlignment="Center"/>
+                </Border>
+                <TextBlock Grid.Column="4"  Text="Variance:" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Column="5"  Text="       " HorizontalAlignment="Center"/>
+                <GridSplitter Grid.Column="6" />
+                <Border BorderBrush="Gray" BorderThickness="1" Grid.Column="6">
+                    <TextBlock  ScrollViewer.VerticalScrollBarVisibility="Auto" Text="{Binding Variance}" HorizontalAlignment="Center"/>
+                </Border>
+                <TextBlock Grid.Column="7"  Text="       " HorizontalAlignment="Center"/>
+                <TextBlock Grid.Column="8"  Text="ElapsedTime:" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Column="9"  Text="       " HorizontalAlignment="Center"/>
+                <GridSplitter Grid.Column="10" />
+                <Border BorderBrush="Gray" BorderThickness="1" Grid.Column="10">
+                    <TextBlock  ScrollViewer.VerticalScrollBarVisibility="Auto" Text="{Binding ElapsedTime}" HorizontalAlignment="Center"/>
+                </Border>
+
+            </Grid>
+            <Grid Grid.Row="4" HorizontalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                    
+                <TextBlock Grid.Row="0" Text="Metrics" HorizontalAlignment="Center"/>
+                <ProgressBar Grid.Row="1" Name="RunProgress" Value="{Binding Progress}" IsIndeterminate="False" Minimum="0" Maximum="100" Height="30"/>
+                <TextBlock Grid.Row="1" Text="{Binding ElementName=RunProgress, Path=Value, StringFormat={}{0:0}%}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <ScrollViewer Grid.Row="2"  Name="scroll" Height="200" MinWidth="200" HorizontalAlignment="Center">
+                    <TextBlock Grid.Row="2" Text="{Binding Metrics}" HorizontalAlignment="Center"/>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+    </StackPanel>
+</Window>
