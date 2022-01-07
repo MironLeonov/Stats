@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Grpc.Core;
@@ -9,8 +8,6 @@ using Stats.Protobuf.Sequence;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.IO;
 using System.Threading;
-using Google.Protobuf.Collections;
-using Google.Protobuf.WellKnownTypes;
 
 namespace Stats.Client
 {
@@ -38,15 +35,6 @@ namespace Stats.Client
             // await TestParallel(cv, 2);
             await TestMetrics(cv, met, 8); 
         }
-
-        // private static void Main(string[] args)
-        // {
-        // var values = GetValues(@"D:\values.csv");
-        //
-        // foreach (var value in values)
-        // {
-        //     Console.WriteLine(value);
-        // }
 
         private static List<double> GetValues(string path)
         {
@@ -145,7 +133,7 @@ namespace Stats.Client
             var result = await cv.CalculateValuesAsync(
                 sequence
             );
-            // sequence.Values.Capacity = values.Count + 1;
+
             Console.WriteLine($"EV {result.EV}");
             Console.WriteLine($"Var {result.Var}");
             Console.WriteLine($"Time {result.Time}");

@@ -33,16 +33,8 @@ namespace Stats.Avalonia.App
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
-        }
-
-
-        public async void StartClicked(object sender, RoutedEventArgs eventArgs)
-        {
-            var context = this.DataContext as ViewModel;
-
-            
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
-            using var channel = GrpcChannel.ForAddress(
+            var channel = GrpcChannel.ForAddress(
                 "http://localhost:18081",
                 new GrpcChannelOptions()
                 {
@@ -52,13 +44,20 @@ namespace Stats.Avalonia.App
                     MaxSendMessageSize = 100 * 1024 * 1024 // 100 MB
                 }
             );
-            var cv = new CalculateValuesService.CalculateValuesServiceClient(channel);
-            var met = new GetMetricsService.GetMetricsServiceClient(channel);
-    
-            var sequence = new Sequence()
+            _cv = new CalculateValuesService.CalculateValuesServiceClient(channel);
+            _met = new GetMetricsService.GetMetricsServiceClient(channel);
+
+        }
+
+        public async void StartClicked(object sender, RoutedEventArgs eventArgs)
+        {
+            var context = this.DataContext as ViewModel;
+
+            var sequence = new Sequence
             {
-                CntThreads = int.Parse(context.CountThreads)
+                CntThreads = context.CountThreads != "" ? int.Parse(context.CountThreads) : 8
             };
+
 
             if (context.Count != "")
             {
@@ -96,7 +95,7 @@ namespace Stats.Avalonia.App
                         try
                         {
                             using var streamingCall =
-                                met.GetMetricsStream(new GuidForMetrics() {CorrelationId = corrId});
+                                _met.GetMetricsStream(new GuidForMetrics() {CorrelationId = corrId});
                             await using StreamWriter file = new(@"D:\ProjectsMEPhI\parProg\Stats\Stats.Avalonia.App\MetricsStats.txt");
                             await foreach (var metricsData in streamingCall.ResponseStream.ReadAllAsync(cancellationToken: cts.Token))
                             {
@@ -128,7 +127,7 @@ namespace Stats.Avalonia.App
                 Task.Run(
                     async () =>
                     {
-                        result = await cv.CalculateValuesAsync(
+                        result = await _cv.CalculateValuesAsync(
                             sequence
                         );
 
@@ -137,7 +136,7 @@ namespace Stats.Avalonia.App
             };
             
             await Task.WhenAll(tasks);
-            context.Metrics = "Hello"; 
+            context.Metrics = "For detail information activate checkbox"; 
             context.ExpValue = $"{Math.Round(result.EV, 3)}";
             context.Variance = $"{Math.Round(result.Var, 3)}";
             context.ElapsedTime = $"{result.Time}";
@@ -146,5 +145,8 @@ namespace Stats.Avalonia.App
                 context.Metrics = "Check file for more information";
             }
         }
+        
+        private CalculateValuesService.CalculateValuesServiceClient _cv;
+        private GetMetricsService.GetMetricsServiceClient _met; 
     }
 }

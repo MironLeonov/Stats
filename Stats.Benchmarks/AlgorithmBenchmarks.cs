@@ -15,7 +15,7 @@ namespace Stats.Benchmarks
     {
         public Sequence Sequence;
         
-        [Params(2, 4, 8)] 
+        [Params(1, 2, 4, 8, 10, 12, 14)] 
         public int CntThreads;
 
 

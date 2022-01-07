@@ -27,6 +27,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCalc", "TestCalc\TestCa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stats.Worker", "Stats.Worker\Stats.Worker.csproj", "{06822195-32AF-4F43-B201-05495DED4F4E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stats.Avalonia.App", "Stats.Avalonia.App\Stats.Avalonia.App.csproj", "{E6D5386B-8CF9-4BA8-8BEF-E86CA19F3EEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stats.Benchmarks", "Stats.Benchmarks\Stats.Benchmarks.csproj", "{D0E7CE89-8511-464C-9159-F44B9C928E21}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,5 +65,13 @@ Global
 		{06822195-32AF-4F43-B201-05495DED4F4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06822195-32AF-4F43-B201-05495DED4F4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06822195-32AF-4F43-B201-05495DED4F4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6D5386B-8CF9-4BA8-8BEF-E86CA19F3EEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6D5386B-8CF9-4BA8-8BEF-E86CA19F3EEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6D5386B-8CF9-4BA8-8BEF-E86CA19F3EEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6D5386B-8CF9-4BA8-8BEF-E86CA19F3EEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0E7CE89-8511-464C-9159-F44B9C928E21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0E7CE89-8511-464C-9159-F44B9C928E21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0E7CE89-8511-464C-9159-F44B9C928E21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0E7CE89-8511-464C-9159-F44B9C928E21}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
