@@ -1,12 +1,9 @@
 using System;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Stats.Avalonia.App.Models;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Grpc.Core;
@@ -58,36 +55,9 @@ namespace Stats.Avalonia.App
         {
             var context = this.DataContext as ViewModel;
 
-            var sequence = new Sequence
-            {
-                CntThreads = context.CountThreads != "" ? int.Parse(context.CountThreads) : 8
-            };
-
-            List<double> values;
-
-            if (context.Count != "")
-            {
-                values = Enumerable.Range(0, int.Parse(context.Count)).Select(_ => new Random().Next(-100, 100) / 1.0)
-                    .ToList();
-            }
-            else if (context.Path != "")
-            {
-                values = ReadCsv(context.Path);
-            }
-            else
-            {
-                values = Enumerable.Range(0, 5).Select(_ => new Random().Next(-100, 100) / 1.0).ToList();
-            }
-
-            foreach (var value in values)
-            {
-                sequence.Values.Add(value);
-            }
+            var sequence = GenerateSequence(context);
 
             var result = new Answer();
-
-            var corrId = Guid.NewGuid().ToString();
-            sequence.CorrelationId = corrId;
 
             var cts = new CancellationTokenSource();
 
@@ -101,7 +71,7 @@ namespace Stats.Avalonia.App
                         try
                         {
                             using var streamingCall =
-                                _met.GetMetricsStream(new GuidForMetrics() {CorrelationId = corrId});
+                                _met.GetMetricsStream(new GuidForMetrics() {CorrelationId = sequence.CorrelationId});
                             await using StreamWriter file =
                                 new(@"D:\ProjectsMEPhI\parProg\Stats\Stats.Avalonia.App\MetricsStats.txt");
                             await foreach (var metricsData in streamingCall.ResponseStream.ReadAllAsync(
@@ -147,6 +117,7 @@ namespace Stats.Avalonia.App
             context.ExpValue = $"{Math.Round(result.EV, 3)}";
             context.Variance = $"{Math.Round(result.Var, 3)}";
             context.ElapsedTime = $"{result.Time}";
+
             if (context.IsChecked)
             {
                 context.Metrics = "Check file for more information";
@@ -162,6 +133,46 @@ namespace Stats.Avalonia.App
             return result;
         }
 
+        private static Sequence GenerateSequence(ViewModel? context)
+        {
+            var sequence = new Sequence
+            {
+                CntThreads = context.CountThreads != "" ? int.Parse(context.CountThreads) : 8
+            };
+
+            List<double> values;
+
+            if (context.Count != "")
+            {
+                values = Enumerable.Range(0, int.Parse(context.Count)).Select(_ => new Random().Next(-100, 100) / 1.0)
+                    .ToList();
+            }
+            else if (context.Path != "")
+            {
+                try
+                {
+                    values = ReadCsv(context.Path);
+                }
+                catch
+                {
+                    throw new Exception("Incorrect path");
+                }
+            }
+            else
+            {
+                values = Enumerable.Range(0, 100).Select(_ => new Random().Next(-100, 100) / 1.0).ToList();
+            }
+
+            foreach (var value in values)
+            {
+                sequence.Values.Add(value);
+            }
+
+            var corrId = Guid.NewGuid().ToString();
+            sequence.CorrelationId = corrId;
+
+            return sequence;
+        }
 
         private CalculateValuesService.CalculateValuesServiceClient _cv;
         private GetMetricsService.GetMetricsServiceClient _met;
