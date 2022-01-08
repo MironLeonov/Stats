@@ -18,6 +18,7 @@ namespace Stats.Avalonia.App.Models
         private string _variance = "";
         private string _metrics = "";
         private string _elapsedTime = "";
+        private string _path = "";
         private double _progress = 0;
 
         private bool _isChecked = false;
@@ -125,6 +126,19 @@ namespace Stats.Avalonia.App.Models
                 if (value != _elapsedTime)
                 {
                     _elapsedTime = value; 
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public string Path
+        {
+            get => _path;
+            set
+            {
+                if (value != _path)
+                {
+                    _path = value; 
                     OnPropertyChanged();
                 }
             }

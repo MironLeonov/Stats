@@ -15,6 +15,8 @@ using Stats.Protobuf.Sequence;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.IO;
 using System.Threading;
+using System.Globalization;
+using CsvHelper;
 
 namespace Stats.Avalonia.App
 {
@@ -24,7 +26,11 @@ namespace Stats.Avalonia.App
         {
             InitializeComponent();
 
-            this.DataContext = new ViewModel() {ExpValue = "Waiting for result", Variance = "Waiting for result", Metrics = "Waiting for result", ElapsedTime = "Waiting for result"}; 
+            this.DataContext = new ViewModel()
+            {
+                ExpValue = "Waiting for result", Variance = "Waiting for result", Metrics = "Waiting for result",
+                ElapsedTime = "Waiting for result"
+            };
 #if DEBUG
             this.AttachDevTools();
 #endif
@@ -46,7 +52,6 @@ namespace Stats.Avalonia.App
             );
             _cv = new CalculateValuesService.CalculateValuesServiceClient(channel);
             _met = new GetMetricsService.GetMetricsServiceClient(channel);
-
         }
 
         public async void StartClicked(object sender, RoutedEventArgs eventArgs)
@@ -58,67 +63,70 @@ namespace Stats.Avalonia.App
                 CntThreads = context.CountThreads != "" ? int.Parse(context.CountThreads) : 8
             };
 
+            List<double> values;
 
             if (context.Count != "")
             {
-                var values = Enumerable.Range(0, int.Parse(context.Count)).Select(_ => new Random().Next(-100, 100)).ToArray();
-                
-                foreach (var value in values)
-                {
-                    sequence.Values.Add(value);
-                }
+                values = Enumerable.Range(0, int.Parse(context.Count)).Select(_ => new Random().Next(-100, 100) / 1.0)
+                    .ToList();
+            }
+            else if (context.Path != "")
+            {
+                values = ReadCsv(context.Path);
             }
             else
             {
-                var values = Enumerable.Range(0, 5).Select(_ => new Random().Next(-100, 100)).ToArray();
-                
-                foreach (var value in values)
-                {
-                    sequence.Values.Add(value);
-                }
+                values = Enumerable.Range(0, 5).Select(_ => new Random().Next(-100, 100) / 1.0).ToList();
+            }
+
+            foreach (var value in values)
+            {
+                sequence.Values.Add(value);
             }
 
             var result = new Answer();
-            
+
             var corrId = Guid.NewGuid().ToString();
             sequence.CorrelationId = corrId;
 
             var cts = new CancellationTokenSource();
-            
+
             var tasks = new List<Task>
             {
                 Task.Run(
                     async () =>
                     {
-                        context.Metrics = "Starting Metrics"; 
+                        context.Metrics = "Starting Metrics";
                         context.Progress = 0;
                         try
                         {
                             using var streamingCall =
                                 _met.GetMetricsStream(new GuidForMetrics() {CorrelationId = corrId});
-                            await using StreamWriter file = new(@"D:\ProjectsMEPhI\parProg\Stats\Stats.Avalonia.App\MetricsStats.txt");
-                            await foreach (var metricsData in streamingCall.ResponseStream.ReadAllAsync(cancellationToken: cts.Token))
+                            await using StreamWriter file =
+                                new(@"D:\ProjectsMEPhI\parProg\Stats\Stats.Avalonia.App\MetricsStats.txt");
+                            await foreach (var metricsData in streamingCall.ResponseStream.ReadAllAsync(
+                                cancellationToken: cts.Token))
                             {
-                                var metrics = ""; 
+                                var metrics = "";
                                 for (var i = 0; i < metricsData.Values.Count; i++)
                                 {
-                                    metrics +=  $"{i} -> {metricsData.Values[i]}; ";
+                                    metrics += $"{i} -> {metricsData.Values[i]}; ";
 
                                     if (metricsData.Values.Sum() >= sequence.Values.Count)
                                     {
                                         cts.Cancel();
                                     }
 
-                                    context.Progress = metricsData.Values.Sum() / sequence.Values.Count * 100; 
+                                    context.Progress = metricsData.Values.Sum() / sequence.Values.Count * 100;
                                 }
 
                                 if (context.IsChecked)
                                 {
-                                    await file.WriteLineAsync(metrics); 
+                                    await file.WriteLineAsync(metrics);
                                 }
                             }
                         }
-                        catch(RpcException ex) when (ex.StatusCode == StatusCode.Cancelled)
+                        catch (RpcException ex) when (ex.StatusCode == StatusCode.Cancelled)
                         {
                             Console.WriteLine("End Metrics.");
                         }
@@ -130,13 +138,12 @@ namespace Stats.Avalonia.App
                         result = await _cv.CalculateValuesAsync(
                             sequence
                         );
-
                     }
                 )
             };
-            
+
             await Task.WhenAll(tasks);
-            context.Metrics = "For detail information activate checkbox"; 
+            context.Metrics = "For detail information activate checkbox";
             context.ExpValue = $"{Math.Round(result.EV, 3)}";
             context.Variance = $"{Math.Round(result.Var, 3)}";
             context.ElapsedTime = $"{result.Time}";
@@ -145,8 +152,18 @@ namespace Stats.Avalonia.App
                 context.Metrics = "Check file for more information";
             }
         }
-        
+
+        private static List<double> ReadCsv(string absolutePath)
+        {
+            using var streamReader = new StreamReader(absolutePath);
+            using var csvReader = new CsvReader(streamReader, CultureInfo.InvariantCulture);
+            var result = csvReader.GetRecords<double>().ToList();
+
+            return result;
+        }
+
+
         private CalculateValuesService.CalculateValuesServiceClient _cv;
-        private GetMetricsService.GetMetricsServiceClient _met; 
+        private GetMetricsService.GetMetricsServiceClient _met;
     }
 }

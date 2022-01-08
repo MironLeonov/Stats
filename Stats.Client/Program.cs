@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Grpc.Core;
@@ -8,6 +9,7 @@ using Stats.Protobuf.Sequence;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.IO;
 using System.Threading;
+using CsvHelper;
 
 namespace Stats.Client
 {
@@ -30,11 +32,21 @@ namespace Stats.Client
             var met = new GetMetricsService.GetMetricsServiceClient(channel); 
             // await VerySimple(cv, 8);
             // await ArrayVersionSimple(cv, 8);
-            // await GetDataFromPath(cv, 8,@"D:\values_big.csv" );
+            // await GetDataFromPath(cv, 8,@"D:\values_100000_new.csv" );
             // await FromGenerateData(cv, 2);
             // await TestParallel(cv, 2);
             await TestMetrics(cv, met, 8); 
         }
+
+
+        // private static void Main(string[] args)
+        // {
+        //     var values = ReadCsv(@"D:\values_100000.csv");
+        //     foreach (var t in values)
+        //     {
+        //         Console.WriteLine(t);
+        //     }
+        // }
 
         private static List<double> GetValues(string path)
         {
@@ -56,6 +68,23 @@ namespace Stats.Client
             }
 
             return values;
+        }
+        
+        
+        public static List<double> ReadCsv(string absolutePath) {
+            // List<string> result = new List<string>();
+            string value;
+            using var streamReader = new StreamReader(absolutePath);
+            using var csvReader = new CsvReader(streamReader, CultureInfo.InvariantCulture);
+            // csv.Configuration.HasHeaderRecord = false;
+            // while (csv.Read()) {
+            //     for(int i=0; csv.TryGetField<string>(i, out value); i++) {
+            //         result.Add(value);
+            //     }
+            // }
+            var result = csvReader.GetRecords<double>().ToList(); 
+
+            return result;
         }
 
 
@@ -98,15 +127,24 @@ namespace Stats.Client
         {
             var sequence = new Sequence()
             {
-                Values = {0},
                 CntThreads = cntThreads
             };
-            var values = GetValues(path);
-            sequence.Values.AddRange(values);
+            
+            var values = ReadCsv(path);
+            
+            Console.WriteLine(values.Count);
+            
+            foreach (var value in values)
+            {
+                sequence.Values.Add(value);
+            }
+            
+            sequence.CorrelationId = Guid.NewGuid().ToString(); 
+            
             var result = await cv.CalculateValuesAsync(
                 sequence
             );
-            sequence.Values.Capacity = values.Count + 1;
+
             Console.WriteLine($"EV {result.EV}");
             Console.WriteLine($"Var {result.Var}");
             Console.WriteLine($"Time {result.Time}");
@@ -189,7 +227,7 @@ namespace Stats.Client
 
         private static async Task TestMetrics(CalculateValuesService.CalculateValuesServiceClient cv, GetMetricsService.GetMetricsServiceClient met, int cntThreads)
         {
-            var values = Enumerable.Range(0, 1_000_000).Select(_ => new Random().Next(-100, 100)).ToArray();
+            var values = Enumerable.Range(0, 1_000_000).Select(_ => new Random().Next(-100, 100)).ToList();
 
             var sequence = new Sequence()
             {
