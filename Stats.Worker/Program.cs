@@ -38,6 +38,7 @@ namespace Stats.Worker
             {
                 BootstrapServers = bootstrapServers
             };
+            
             using var producer = new ProducerBuilder<Null, WorkerRs>(producerConfig)
                 .SetValueSerializer(new ProtoSerializer<WorkerRs>())
                 .Build();

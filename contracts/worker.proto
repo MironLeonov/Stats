@@ -15,13 +15,3 @@ message WorkerRs {
   Answer rs_data = 1;
   string correlation_id = 2;
 }
-//
-//message WorkerMetricsRs{ 
-//  Universal rs_data = 1;
-//  string correlation_id = 3;
-//}
-//
-//message WorkerMetricsRq{
-//  MetricsSignal rq_data = 1;
-//  string correlation_id = 2;
-//}

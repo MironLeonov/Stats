@@ -2,7 +2,6 @@ version: "3"
 services:
   worker:
     image: stats-worker
-    container_name: stats-worker
     build:
         context: ..
         dockerfile: Stats.Worker/Dockerfile

@@ -54,6 +54,11 @@ namespace Stats.Avalonia.App
         public async void StartClicked(object sender, RoutedEventArgs eventArgs)
         {
             var context = this.DataContext as ViewModel;
+            
+            context.ExpValue = "Waiting for result";
+            context.Variance = "Waiting for result"; 
+            context.Metrics = "Waiting for result"; 
+            context.ExpValue = "Waiting for result"; 
 
             var sequence = GenerateSequence(context);
 
@@ -80,7 +85,7 @@ namespace Stats.Avalonia.App
                                 var metrics = "";
                                 for (var i = 0; i < metricsData.Values.Count; i++)
                                 {
-                                    metrics += $"{i} -> {metricsData.Values[i]}; ";
+                                    metrics += $"{i+1} -> {metricsData.Values[i]}; ";
 
                                     if (metricsData.Values.Sum() >= sequence.Values.Count)
                                     {
